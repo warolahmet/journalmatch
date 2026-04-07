@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JournalMatch</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <header class="app-header">
+        <h1>JournalMatch</h1>
+        <p class="app-subtitle">
+            Find the best journal for your research using AI-powered matching.
+        </p>
+    </header>
+
+    <section class="form-section">
+        <form id="journalForm">
+            <label for="title">Paper Title</label>
+            <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="e.g. Deep learning for medical image analysis"
+                    required
+            >
+
+            <label for="abstractText">Abstract</label>
+            <textarea
+                    id="abstractText"
+                    name="abstractText"
+                    rows="8"
+                    placeholder="Paste your abstract here (recommended for better results)"
+                    required
+            ></textarea>
+
+            <p class="input-hint">
+                Tip: Using both title and abstract improves recommendation accuracy.
+            </p>
+
+            <div class="button-row">
+                <button type="submit" id="submitBtn">Find Journals</button>
+                <button type="button" id="exampleBtn">Try Example</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="status-section">
+        <div id="loading" class="hidden">Finding best journal matches...</div>
+        <div id="errorMessage" class="error hidden"></div>
+    </section>
+
+    <section class="results-section">
+        <h2>Top 5 Journal Recommendations</h2>
+        <p class="section-subtitle">Hybrid ranking combines rule-based, TF-IDF, and embedding signals.</p>
+        <div id="results"></div>
+        <div id="showMoreContainer" class="hidden">
+            <button type="button" id="showMoreBtn">Show more results</button>
+        </div>
+    </section>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
