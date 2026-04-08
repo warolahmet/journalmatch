@@ -10,9 +10,7 @@ public class JournalSuggestRequest {
 
     public void setLimit(Integer limit) { this.limit = limit; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
 
     public void setTitle(String title) {
         this.title = title;

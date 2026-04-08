@@ -178,6 +178,11 @@ public class HybridSuggestionService {
         combinedResults.sort(Comparator.comparingDouble(HybridJournalResponse::getHybridScore).reversed());
 
         int finalLimit = (limit != null && limit > 0) ? limit : 5;
+        System.out.println("allKeys size = " + allKeys.size());
+        System.out.println("dedupedResults size = " + dedupedResults.size());
+        System.out.println("finalLimit = " + finalLimit);
+        System.out.println("combinedResults size = " + combinedResults.size());
+
         return combinedResults.stream().limit(finalLimit).toList();
 
     }

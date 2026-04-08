@@ -19,6 +19,10 @@ public class HybridController {
 
     @PostMapping("/suggest")
     public List<HybridJournalResponse> suggest(@RequestBody JournalSuggestRequest request) {
+        System.out.println("REQUEST TITLE = " + request.getTitle());
+        System.out.println("REQUEST ABSTRACT = " + request.getAbstractText());
+        System.out.println("REQUEST LIMIT = " + request.getLimit());
+
         return hybridSuggestionService.suggest(
                 request.getTitle(),
                 request.getAbstractText(),
