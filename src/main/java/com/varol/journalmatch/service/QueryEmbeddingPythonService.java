@@ -13,6 +13,8 @@ public class QueryEmbeddingPythonService {
 
     public double[] getQueryEmbedding(String text) {
         try {
+            System.out.println("QUERY EMBEDDING: starting python process");
+
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "/opt/venv/bin/python",
                     "scripts/query_embedding.py",
@@ -22,6 +24,8 @@ public class QueryEmbeddingPythonService {
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
+            System.out.println("QUERY EMBEDDING: python process started");
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream())
             );
@@ -30,10 +34,20 @@ public class QueryEmbeddingPythonService {
             String line;
 
             while ((line = reader.readLine()) != null) {
+                System.out.println("PYTHON OUT: " + line);
                 output.append(line);
             }
 
-            int exitCode = process.waitFor();
+            System.out.println("QUERY EMBEDDING: waiting for process to finish");
+            boolean finished = process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS);
+
+            if (!finished) {
+                process.destroyForcibly();
+                throw new RuntimeException("Query embedding process timed out");
+            }
+
+            int exitCode = process.exitValue();
+            System.out.println("QUERY EMBEDDING: process finished with exitCode=" + exitCode);
 
             if (exitCode != 0) {
                 throw new RuntimeException("Python embedding script failed: " + output);
