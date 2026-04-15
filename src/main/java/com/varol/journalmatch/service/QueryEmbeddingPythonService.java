@@ -14,7 +14,7 @@ public class QueryEmbeddingPythonService {
     public double[] getQueryEmbedding(String text) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python3",
+                    "/opt/venv/bin/python",
                     "scripts/query_embedding.py",
                     text
             );
