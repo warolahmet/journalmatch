@@ -30,6 +30,8 @@ public class HybridSuggestionService {
 
         List<TfidfJournalResponse> tfidfResults = List.of();
         boolean tfidfAvailable = false;
+        System.out.println("NEW EMBEDDING PIPELINE ACTIVE");
+
 
   //      List<EmbeddingJournalResponse> embeddingResults = List.of();
   //              embeddingPythonService.getEmbeddingRecommendations(title, abstractText);
