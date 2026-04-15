@@ -126,7 +126,7 @@ public class JournalSuggestionService {
                     scoredJournal.getMatchedKeywords()
             ));
 
-            if (result.size() == 5) {
+            if (result.size() == 20) {
                 break;
             }
         }

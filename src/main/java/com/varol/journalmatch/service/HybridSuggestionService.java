@@ -1,9 +1,6 @@
 package com.varol.journalmatch.service;
 
-import com.varol.journalmatch.dto.EmbeddingJournalResponse;
-import com.varol.journalmatch.dto.HybridJournalResponse;
-import com.varol.journalmatch.dto.JournalResponse;
-import com.varol.journalmatch.dto.TfidfJournalResponse;
+import com.varol.journalmatch.dto.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,17 +9,19 @@ import java.util.*;
 public class HybridSuggestionService {
 
     private final JournalSuggestionService journalSuggestionService;
+    private final QueryEmbeddingPythonService queryEmbeddingPythonService;
+    private final SimpleEmbeddingSearchService simpleEmbeddingSearchService;
     private final TfidfPythonService tfidfPythonService;
-    private final EmbeddingPythonService embeddingPythonService;
+
 
     public HybridSuggestionService(
-            JournalSuggestionService journalSuggestionService,
-            TfidfPythonService tfidfPythonService,
-            EmbeddingPythonService embeddingPythonService
+            JournalSuggestionService journalSuggestionService, QueryEmbeddingPythonService queryEmbeddingPythonService, SimpleEmbeddingSearchService simpleEmbeddingSearchService,
+            TfidfPythonService tfidfPythonService
     ) {
         this.journalSuggestionService = journalSuggestionService;
+        this.queryEmbeddingPythonService = queryEmbeddingPythonService;
+        this.simpleEmbeddingSearchService = simpleEmbeddingSearchService;
         this.tfidfPythonService = tfidfPythonService;
-        this.embeddingPythonService = embeddingPythonService;
     }
 
     public List<HybridJournalResponse> suggest(String title, String abstractText, Integer limit) {
@@ -30,12 +29,20 @@ public class HybridSuggestionService {
                 journalSuggestionService.suggestJournals(title, abstractText);
 
         List<TfidfJournalResponse> tfidfResults = List.of();
-  //              tfidfPythonService.getTfidfRecommendations(title, abstractText);
+        boolean tfidfAvailable = false;
 
-        List<EmbeddingJournalResponse> embeddingResults = List.of();
+  //      List<EmbeddingJournalResponse> embeddingResults = List.of();
   //              embeddingPythonService.getEmbeddingRecommendations(title, abstractText);
 
-        boolean tfidfAvailable = !tfidfResults.isEmpty();
+        String queryText = (title == null ? "" : title) + " " +
+                   (abstractText == null ? "" : abstractText);
+
+        double[] queryEmbedding = queryEmbeddingPythonService.getQueryEmbedding(queryText);
+
+        List<EmbeddingSimilarityResult> embeddingResults =
+                simpleEmbeddingSearchService.search(queryEmbedding);
+
+        System.out.println("Embedding results size = " + embeddingResults.size());
         System.out.println("TF-IDF available: " + tfidfAvailable);
 
         Set<String> queryDomainTokens = extractDomainTokens(title + " " + abstractText);
@@ -50,8 +57,8 @@ public class HybridSuggestionService {
             tfidfMap.put(normalizeKey(result.getName()), result);
         }
 
-        Map<String, EmbeddingJournalResponse> embeddingMap = new HashMap<>();
-        for (EmbeddingJournalResponse result : embeddingResults) {
+        Map<String, EmbeddingSimilarityResult> embeddingMap = new HashMap<>();
+        for (EmbeddingSimilarityResult result : embeddingResults) {
             embeddingMap.put(normalizeKey(result.getName()), result);
         }
 
@@ -77,10 +84,10 @@ public class HybridSuggestionService {
                 }
             }
 
-            EmbeddingJournalResponse embedding = embeddingMap.get(key);
+            EmbeddingSimilarityResult embedding = embeddingMap.get(key);
 
             if (embedding == null) {
-                for (EmbeddingJournalResponse candidate : embeddingResults) {
+                for (EmbeddingSimilarityResult candidate : embeddingResults) {
                     String candidateName = normalizeKey(candidate.getName());
 
                     if (candidateName.contains(key) || key.contains(candidateName)) {
@@ -88,6 +95,10 @@ public class HybridSuggestionService {
                         break;
                     }
                 }
+            }
+
+            if (rule == null && tfidf == null && embedding == null) {
+                continue;
             }
 
             String name = rule != null

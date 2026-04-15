@@ -27,6 +27,17 @@ public class Journal {
     @Column(columnDefinition = "TEXT")
     private String openalexId;
 
+    @Column(columnDefinition = "TEXT")
+    private String embeddingJson;
+
+    public String getEmbeddingJson() {
+        return embeddingJson;
+    }
+
+    public void setEmbeddingJson(String embeddingJson) {
+        this.embeddingJson = embeddingJson;
+    }
+
     public String getOpenalexId() {
         return openalexId;
     }
@@ -98,6 +109,18 @@ public class Journal {
 
     public void setKeywords(String keywords) {
         this.keywords = keywords;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer gethIndex() {
+        return hIndex;
+    }
+
+    public void sethIndex(Integer hIndex) {
+        this.hIndex = hIndex;
     }
 
     public Long getId() {
