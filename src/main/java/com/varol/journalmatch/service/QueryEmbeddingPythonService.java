@@ -1,64 +1,63 @@
 package com.varol.journalmatch.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class QueryEmbeddingPythonService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String API_URL = "http://127.0.0.1:8001/embed";
 
     public double[] getQueryEmbedding(String text) {
         try {
-            System.out.println("QUERY EMBEDDING: starting python process");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "/opt/venv/bin/python",
-                    "scripts/query_embedding.py",
-                    text
+            Map<String, String> body = Map.of("text", text);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<EmbeddingResponse> response = restTemplate.exchange(
+                    API_URL,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<EmbeddingResponse>() {}
             );
 
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            System.out.println("QUERY EMBEDDING: python process started");
-
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())
-            );
-
-            StringBuilder output = new StringBuilder();
-            String line;
-
-            System.out.println("QUERY EMBEDDING: reading python output");
-
-            while ((line = reader.readLine()) != null) {
-                System.out.println("PYTHON OUT: " + line);
-                output.append(line);
+            if (response.getBody() == null || response.getBody().getEmbedding() == null) {
+                throw new RuntimeException("Embedding API returned empty response");
             }
 
-            System.out.println("QUERY EMBEDDING: waiting for process to finish");
-            boolean finished = process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS);
+            List<Double> embeddingList = response.getBody().getEmbedding();
+            double[] result = new double[embeddingList.size()];
 
-            if (!finished) {
-                process.destroyForcibly();
-                throw new RuntimeException("Query embedding process timed out");
+            for (int i = 0; i < embeddingList.size(); i++) {
+                result[i] = embeddingList.get(i);
             }
 
-            int exitCode = process.exitValue();
-            System.out.println("QUERY EMBEDDING: process finished with exitCode=" + exitCode);
-
-            if (exitCode != 0) {
-                throw new RuntimeException("Python embedding script failed: " + output);
-            }
-
-            return objectMapper.readValue(output.toString(), double[].class);
+            return result;
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate query embedding", e);
+            throw new RuntimeException("Failed to generate query embedding via local API", e);
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class EmbeddingResponse {
+        private List<Double> embedding;
+
+        public List<Double> getEmbedding() {
+            return embedding;
+        }
+
+        public void setEmbedding(List<Double> embedding) {
+            this.embedding = embedding;
         }
     }
 }
