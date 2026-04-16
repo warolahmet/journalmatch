@@ -1,10 +1,17 @@
+print("PYTHON SCRIPT: file started", flush=True)
+
 import json
 import sys
+
+print("PYTHON SCRIPT: std imports loaded", flush=True)
+
 from sentence_transformers import SentenceTransformer
 
-print("PYTHON SCRIPT: started", flush=True)
+print("PYTHON SCRIPT: sentence_transformers imported", flush=True)
 
 def main():
+    print("PYTHON SCRIPT: inside main", flush=True)
+
     if len(sys.argv) < 2:
         print(json.dumps({"error": "query text is required"}), flush=True)
         return

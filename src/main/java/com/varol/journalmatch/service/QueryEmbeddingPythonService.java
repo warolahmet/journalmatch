@@ -33,6 +33,8 @@ public class QueryEmbeddingPythonService {
             StringBuilder output = new StringBuilder();
             String line;
 
+            System.out.println("QUERY EMBEDDING: reading python output");
+
             while ((line = reader.readLine()) != null) {
                 System.out.println("PYTHON OUT: " + line);
                 output.append(line);
