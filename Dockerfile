@@ -10,9 +10,15 @@ RUN chmod +x mvnw
 RUN chmod +x start.sh
 
 RUN python3 -m venv /opt/venv
-RUN /opt/venv/bin/pip install --no-cache-dir fastapi uvicorn sentence-transformers
 
-RUN ./mvnw clean package -DskipTests
+RUN echo "Installing fastapi and uvicorn..." && \
+    /opt/venv/bin/pip install --no-cache-dir fastapi uvicorn
+
+RUN echo "Installing sentence-transformers..." && \
+    /opt/venv/bin/pip install --no-cache-dir --progress-bar off sentence-transformers
+
+RUN echo "Building Spring Boot app..." && \
+    ./mvnw clean package -DskipTests
 
 EXPOSE 8080
 
