@@ -30,8 +30,6 @@ public class HybridSuggestionService {
 
         List<TfidfJournalResponse> tfidfResults = List.of();
         boolean tfidfAvailable = false;
-        System.out.println("NEW EMBEDDING PIPELINE ACTIVE");
-
 
   //      List<EmbeddingJournalResponse> embeddingResults = List.of();
   //              embeddingPythonService.getEmbeddingRecommendations(title, abstractText);
@@ -39,10 +37,10 @@ public class HybridSuggestionService {
         String queryText = (title == null ? "" : title) + " " +
                    (abstractText == null ? "" : abstractText);
 
-        double[] queryEmbedding = queryEmbeddingPythonService.getQueryEmbedding(queryText);
+  //      double[] queryEmbedding = queryEmbeddingPythonService.getQueryEmbedding(queryText);
 
-        List<EmbeddingSimilarityResult> embeddingResults =
-                simpleEmbeddingSearchService.search(queryEmbedding);
+        List<EmbeddingSimilarityResult> embeddingResults = List.of();
+  //              simpleEmbeddingSearchService.search(queryEmbedding);
 
         System.out.println("Embedding results size = " + embeddingResults.size());
         System.out.println("TF-IDF available: " + tfidfAvailable);
@@ -128,15 +126,15 @@ public class HybridSuggestionService {
             double tfidfScore = tfidf != null ? tfidf.getTfidfScore() : 0.0;
             double embeddingScore = embedding != null ? embedding.getEmbeddingScore() : 0.0;
             String matchedKeywords = rule != null ? rule.getMatchedKeywords() : "";
-            double hybridScore;
+            double hybridScore = ruleScore;
 
-            if (embeddingScore > 0 || tfidfScore > 0) {
+          /*  if (embeddingScore > 0 || tfidfScore > 0) {
                 hybridScore = (ruleScore * 0.4) + (tfidfScore * 20.0) + (embeddingScore * 40.0);
             } else if (tfidfAvailable) {
                 hybridScore = (ruleScore * 0.5) + (tfidfScore * 30.0);
             } else {
                 hybridScore = ruleScore;
-            }
+            }*/
 
             String journalDomainText =
                     (subjectArea == null ? "" : subjectArea) + " " +
